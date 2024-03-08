@@ -94,9 +94,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-MEDIA_URL = "/media/"
-#MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL=os.environ.get('MEDIA_URL')
+MEDIA_URL = os.environ.get('MEDIA_URL')
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_URLS_REGEX = r'^/api/.*$'
