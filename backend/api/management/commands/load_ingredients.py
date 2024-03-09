@@ -18,19 +18,13 @@ class Command(BaseCommand):
                             type=str)
 
     def handle(self, *args, **options):
-        try:
-            with open(os.path.join(DATA_ROOT, options['filename']), 'r',
-                      encoding='utf-8') as f:
-                data = json.load(f)
-                for ingredient in data:
-                    try:
-                        Ingredient.objects.create(name=ingredient["name"],
-                                                  measurement_unit=ingredient[
-                                                      "measurement_unit"])
-                    except IntegrityError:
-                        print(f'Ингридиет {ingredient["name"]} '
-                              f'{ingredient["measurement_unit"]} '
-                              f'уже есть в базе')
-
-        except FileNotFoundError:
-            raise CommandError('Файл отсутствует в директории data')
+        with open(os.path.join(DATA_ROOT, options['filename']), 'r', encoding = 'utf-8') as f:
+            data = json.load(f)
+            for ingredient in data:
+                obj, created = Ingredient.objects.get_or_create(
+                    name = ingredient["name"],
+                    defaults = {'measurement_unit': ingredient["measurement_unit"]}
+                )
+                if not created:
+                    self.stdout.write(self.style.WARNING(
+                        f'Ингредиент {ingredient["name"]} {ingredient["measurement_unit"]} уже есть в базе'))

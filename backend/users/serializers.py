@@ -41,3 +41,38 @@ class CustomUserSerializer(UserSerializer):
         if user.is_anonymous:
             return False
         return Follow.objects.filter(user=user, author=obj.id).exists()
+
+
+class FollowCreateSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        default=serializers.CurrentUserDefault()
+    )
+    author = serializers.PrimaryKeyRelatedField(queryset = User.objects.all())
+
+    class Meta:
+        model = Follow
+        fields = ['user', 'author']
+        validators = [
+            serializers.UniqueTogetherValidator(
+                queryset = Follow.objects.all(),
+                fields = ['user', 'author'],
+                message = "Вы не можете подписываться на самого себя."
+            )
+        ]
+
+    def validate_author(self, value):
+        if self.context['request'].user == value:
+            raise serializers.ValidationError(
+                "Вы не можете подписываться на самого себя."
+            )
+        if Follow.objects.filter(
+                user = self.context['request'].user, author = value
+        ).exists():
+            raise serializers.ValidationError(
+                "Вы уже подписаны на данного пользователя."
+            )
+        return value
+
+    def create(self, validated_data):
+        return Follow.objects.create(**validated_data)

@@ -37,28 +37,31 @@ class RecipeViewSet(viewsets.ModelViewSet):
     serializer_class = RecipeSerializer
     pagination_class = LimitPageNumberPagination
     filter_class = AuthorAndTagFilter
-    permission_classes = [IsOwnerOrReadOnly]
+    permission_classes = (IsOwnerOrReadOnly,)
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    @action(detail=True, methods=['get', 'delete'],
-            permission_classes=[IsAuthenticated])
-    def favorite(self, request, pk=None):
-        if request.method == 'GET':
-            return self.add_obj(Favorite, request.user, pk)
-        elif request.method == 'DELETE':
-            return self.delete_obj(Favorite, request.user, pk)
-        return None
+    @action(
+        detail=True, methods=['post'], permission_classes=[IsAuthenticated]
+    )
+    def favorite(self, request, pk = None):
+        """Добавить рецепт в избранное."""
+        return self.add_obj(Favorite, request.user, pk)
 
-    @action(detail=True, methods=['get', 'delete'],
-            permission_classes=[IsAuthenticated])
+    @favorite.mapping.delete
+    def delete_favorite(self, request, pk = None):
+        return self.delete_obj(Favorite, request.user, pk)
+
+    @action(
+        detail=True, methods=['post'], permission_classes=[IsAuthenticated]
+    )
     def shopping_cart(self, request, pk=None):
-        if request.method == 'GET':
-            return self.add_obj(Cart, request.user, pk)
-        elif request.method == 'DELETE':
-            return self.delete_obj(Cart, request.user, pk)
-        return None
+        return self.add_obj(Cart, request.user, pk)
+
+    @shopping_cart.mapping.delete
+    def delete_shopping_cart(self, request, pk=None):
+        return self.delete_obj(Cart, request.user, pk)
 
     @action(detail=False, methods=['get'],
             permission_classes=[IsAuthenticated])
@@ -95,7 +98,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         page.save()
         return response
 
-    def add_obj(self, model, user, pk):
+    @staticmethod
+    def add_obj(model, user, pk):
         if model.objects.filter(user=user, recipe__id=pk).exists():
             return Response({
                 'errors': 'Рецепт уже добавлен в список'
