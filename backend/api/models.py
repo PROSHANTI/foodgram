@@ -78,7 +78,7 @@ class Recipe(models.Model):
                                verbose_name='Автор рецепта')
     name = models.CharField(max_length=const.MAX_LENGTH_NAME,
                             verbose_name='Название рецепта')
-    image = models.ImageField(upload_to='recipes/',
+    image = models.ImageField(upload_to='media/',
                               verbose_name='Картинка рецепта')
     text = models.TextField(verbose_name='Описание рецепта')
     ingredients = models.ManyToManyField(
