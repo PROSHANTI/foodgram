@@ -1,4 +1,3 @@
-from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
@@ -89,10 +88,15 @@ class RecipeSerializer(serializers.ModelSerializer):
                     'ingredients': 'Кол-во ингредиентов должно быть больше 0.'
                 })
 
-        duplicates = [ingredient_id for ingredient_id, count in ingredient_counts.items() if count > 1]
+        duplicates = [
+            ingredient_id for ingredient_id,
+            count in ingredient_counts.items() if count > 1
+        ]
 
         if duplicates:
-            duplicate_names = [Ingredient.objects.get(id = id).name for id in duplicates]
+            duplicate_names = [
+                Ingredient.objects.get(id=id).name for id in duplicates
+            ]
             raise serializers.ValidationError({
                 'ingredients': f'Ингредиенты должны быть уникальными. '
                                f'Повторяются: {", ".join(duplicate_names)}.'
@@ -104,9 +108,9 @@ class RecipeSerializer(serializers.ModelSerializer):
     def create_ingredients(self, ingredients, recipe):
         ingredient_amount_objects = [
             IngredientAmount(
-                recipe = recipe,
-                ingredient_id = ingredient.get('id'),
-                amount = ingredient.get('amount'),
+                recipe=recipe,
+                ingredient_id=ingredient.get('id'),
+                amount=ingredient.get('amount'),
             )
             for ingredient in ingredients
         ]

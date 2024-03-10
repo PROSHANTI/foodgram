@@ -17,27 +17,28 @@ User = get_user_model()
 class CustomUserViewSet(UserViewSet):
     pagination_class = LimitPageNumberPagination
 
-    @action(detail = True, methods = ['post'], permission_classes = [IsAuthenticated])
-    def subscribe(self, request, pk = None):
-        author = get_object_or_404(User, id = pk)
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def subscribe(self, request, pk=None):
+        author = get_object_or_404(User, id=pk)
         request.data['author'] = author.pk
-        serializer = FollowCreateSerializer(data = request.data, context = {'request': request})
-        serializer.is_valid(raise_exception = True)
-        serializer.save(user = request.user)
-        return Response(serializer.data, status = status.HTTP_201_CREATED)
+        serializer = FollowCreateSerializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user=request.user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @subscribe.mapping.delete
-    def del_subscribe(self, request, pk = None):
+    def del_subscribe(self, request, pk=None):
         user = request.user
-        author = get_object_or_404(User, id = pk)
-        follow = Follow.objects.filter(user = user, author = author)
+        author = get_object_or_404(User, id=pk)
+        follow = Follow.objects.filter(user=user, author=author)
         if not follow.exists():
             return Response(
                 {"errors": "Вы еще не подписаны на этого пользователя."},
-                status = status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST
             )
         follow.delete()
-        return Response(status = status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 
     @action(detail=False, permission_classes=[IsAuthenticated])

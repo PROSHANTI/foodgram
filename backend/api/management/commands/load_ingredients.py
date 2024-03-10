@@ -3,7 +3,6 @@ import os
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
-from django.db.utils import IntegrityError
 
 from api.models import Ingredient
 
@@ -18,12 +17,12 @@ class Command(BaseCommand):
                             type=str)
 
     def handle(self, *args, **options):
-        with open(os.path.join(DATA_ROOT, options['filename']), 'r', encoding = 'utf-8') as f:
+        with open(os.path.join(DATA_ROOT, options['filename']), 'r', encoding='utf-8') as f:
             data = json.load(f)
             for ingredient in data:
                 obj, created = Ingredient.objects.get_or_create(
-                    name = ingredient["name"],
-                    defaults = {'measurement_unit': ingredient["measurement_unit"]}
+                    name=ingredient["name"],
+                    defaults={'measurement_unit': ingredient["measurement_unit"]}
                 )
                 if not created:
                     self.stdout.write(self.style.WARNING(

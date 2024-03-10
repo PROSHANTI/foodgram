@@ -2,7 +2,8 @@ from colorfield.fields import ColorField
 from django.contrib.auth import get_user_model
 from django.core import validators
 from django.db import models
-from foodgram.constants import *
+import foodgram.constants as const
+
 
 User = get_user_model()
 
@@ -25,9 +26,9 @@ class UserRecipeRelation(models.Model):
 
 
 class Ingredient(models.Model):
-    name = models.CharField(max_length=MAX_LENGTH_NAME,
+    name = models.CharField(max_length=const.MAX_LENGTH_NAME,
                             verbose_name='Название ингредиента')
-    measurement_unit = models.CharField(max_length=MAX_LENGTH_NAME,
+    measurement_unit = models.CharField(max_length=const.MAX_LENGTH_NAME,
                                         verbose_name='Единица измерения')
 
     class Meta:
@@ -45,17 +46,17 @@ class Ingredient(models.Model):
 
 class Tag(models.Model):
     name = models.CharField(
-        max_length=MAX_LENGTH_SLUG,
+        max_length=const.MAX_LENGTH_SLUG,
         unique=True,
         verbose_name='Название тега'
     )
     color = ColorField(
-        default=DEFAULT_HEX_COLOR,
+        default=const.DEFAULT_HEX_COLOR,
         verbose_name='Цвет в HEX'
     )
     slug = models.SlugField(
-        max_length=MAX_LENGTH_SLUG,
-        unique = True,
+        max_length=const.MAX_LENGTH_SLUG,
+        unique=True,
         verbose_name='Уникальный слаг'
     )
 
@@ -75,7 +76,7 @@ class Recipe(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE,
                                related_name='recipes',
                                verbose_name='Автор рецепта')
-    name = models.CharField(max_length=MAX_LENGTH_NAME,
+    name = models.CharField(max_length=const.MAX_LENGTH_NAME,
                             verbose_name='Название рецепта')
     image = models.ImageField(upload_to='recipes/',
                               verbose_name='Картинка рецепта')

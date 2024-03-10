@@ -48,16 +48,16 @@ class FollowCreateSerializer(serializers.ModelSerializer):
         queryset=User.objects.all(),
         default=serializers.CurrentUserDefault()
     )
-    author = serializers.PrimaryKeyRelatedField(queryset = User.objects.all())
+    author = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
 
     class Meta:
         model = Follow
         fields = ['user', 'author']
         validators = [
             serializers.UniqueTogetherValidator(
-                queryset = Follow.objects.all(),
-                fields = ['user', 'author'],
-                message = "Вы не можете подписываться на самого себя."
+                queryset=Follow.objects.all(),
+                fields=['user', 'author'],
+                message="Вы не можете подписываться на самого себя."
             )
         ]
 
@@ -67,7 +67,7 @@ class FollowCreateSerializer(serializers.ModelSerializer):
                 "Вы не можете подписываться на самого себя."
             )
         if Follow.objects.filter(
-                user = self.context['request'].user, author = value
+                user=self.context['request'].user, author=value
         ).exists():
             raise serializers.ValidationError(
                 "Вы уже подписаны на данного пользователя."

@@ -45,12 +45,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(
         detail=True, methods=['post'], permission_classes=[IsAuthenticated]
     )
-    def favorite(self, request, pk = None):
-        """Добавить рецепт в избранное."""
+    def favorite(self, request, pk=None):
         return self.add_obj(Favorite, request.user, pk)
 
     @favorite.mapping.delete
-    def delete_favorite(self, request, pk = None):
+    def delete_favorite(self, request, pk=None):
         return self.delete_obj(Favorite, request.user, pk)
 
     @action(
