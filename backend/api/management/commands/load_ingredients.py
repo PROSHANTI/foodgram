@@ -20,8 +20,7 @@ class Command(BaseCommand):
         with open(
                 os.path.join(
                     DATA_ROOT,
-                    options['filename']
-                ),'r', encoding='utf-8') as f:
+                    options['filename']), 'r', encoding='utf-8') as f:
             data = json.load(f)
             for ingredient in data:
                 obj, created = Ingredient.objects.get_or_create(
