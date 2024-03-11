@@ -99,7 +99,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           source: "docs/*"
-          target: "foodgram/"
+          target: "foodgram/docs/"
       - name: copy files via ssh to server
         uses: appleboy/scp-action@master
         with:
