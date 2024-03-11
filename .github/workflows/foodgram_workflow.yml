@@ -78,13 +78,16 @@ jobs:
       - build_and_push_backend_to_docker_hub
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
       - name: remote ssh commands to deploy
         uses: garygrossgarten/github-action-ssh@release
         with:
           host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          privateKey: ${{ secrets.PRIVATE_KEY }}
+          username: ${{ secrets.USER }}
+          privateKey: ${{ secrets.SSH_KEY }}
           command: |
+            sudo mkdir foodgram && cd foodgram
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram-backend
             sudo docker-compose stop
