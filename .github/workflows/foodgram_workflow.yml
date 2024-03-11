@@ -72,7 +72,7 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_gateway:latest
 
-  copy_files_ti_server:
+  copy_files_to_server:
     name: Copy files to server
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
@@ -94,16 +94,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           source: "docs"
-          target: "foodgram/docs"
-      - name: Copy docker-compose.yml
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USER }}
-          key: ${{ secrets.SSH_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          source: "infra/docker-compose.yml"
-          target: "foodgram"
+          target: "foodgram/docs/"
 
   deploy:
     runs-on: ubuntu-latest
@@ -121,8 +112,17 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          source: "docker-compose.yml"
-          target: "foodgram"
+          source: "infra/docker-compose-production.yml"
+          target: "foodgram/docker-compose-production.yml"
+      - name: Copy nginx.conf via ssh
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          source: "infra/nginx.conf"
+          target: "foodgram/"
       - name: remote ssh commands to deploy
         uses: appleboy/ssh-action@master
         with:
@@ -135,7 +135,7 @@ jobs:
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_backend
             sudo docker compose stop
-            sudo docker compose rm backend
+            sudo docker compose rm foodgram_backend
             sudo rm .env
             sudo touch .env
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
@@ -145,7 +145,7 @@ jobs:
             echo DB_HOST=${{ secrets.DB_HOST }} >> .env
             echo DB_PORT=${{ secrets.DB_PORT }} >> .env
             echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
-            sudo docker compose up -d
+            sudo docker compose -f docker-compose-production up -d --build
             sudo docker exec -it foodgram_backend python manage.py makemigrations --noinput
             sudo docker exec -it foodgram_backend python manage.py migrate --noinput
             sudo docker exec -it foodgram_backend python manage.py collectstatic --noinput

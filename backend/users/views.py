@@ -22,8 +22,8 @@ class CustomUserViewSet(UserViewSet):
         methods=['post'],
         permission_classes=[IsAuthenticated]
     )
-    def subscribe(self, request, pk=None):
-        author = get_object_or_404(User, id=pk)
+    def subscribe(self, request, id=None):
+        author = get_object_or_404(User, id=id)
         request.data['author'] = author.pk
         serializer = FollowCreateSerializer(
             data=request.data,
@@ -34,9 +34,9 @@ class CustomUserViewSet(UserViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @subscribe.mapping.delete
-    def del_subscribe(self, request, pk=None):
+    def del_subscribe(self, request, id=None):
         user = request.user
-        author = get_object_or_404(User, id=pk)
+        author = get_object_or_404(User, id=id)
         follow = Follow.objects.filter(user=user, author=author)
         if not follow.exists():
             return Response(
