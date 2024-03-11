@@ -124,9 +124,9 @@ jobs:
             echo DB_PORT=${{ secrets.DB_PORT }} >> .env
             echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
             sudo docker compose -f docker-compose-production.yml up -d --build
-            sudo docker exec -it foodgram_backend python manage.py makemigrations --noinput
-            sudo docker exec -it foodgram_backend python manage.py migrate --noinput
-            sudo docker exec -it foodgram_backend python manage.py collectstatic --noinput
+            sudo docker compose -f docker-compose.production.yml exec foodgram_backend python manage.py makemigrations --noinput
+            sudo docker compose -f docker-compose.production.yml exec foodgram_backend python manage.py migrate --noinput
+            sudo docker compose -f docker-compose.production.yml exec foodgram_backend python manage.py collectstatic --noinput
 
   telegram_message:
     name: Send telegram message
