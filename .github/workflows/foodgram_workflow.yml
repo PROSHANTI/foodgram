@@ -93,8 +93,26 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          source: docs/*
+          source: "docs/openapi-schema.yml,docs/redoc.html"
           target: "home/${{ secrets.USER }}/foodgram/docs/"
+      - name: Copy docker-compose.yml via ssh
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          source: "infra/docker-compose-production.yml"
+          target: "home/${{ secrets.USER }}/foodgram/docker-compose-production.yml"
+      - name: Copy nginx.conf via ssh
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          source: "infra/nginx.conf"
+          target: "home/${{ secrets.USER }}/foodgram/"
 
   deploy:
     runs-on: ubuntu-latest
@@ -105,24 +123,6 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
-      - name: Copy docker-compose.yml via ssh
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USER }}
-          key: ${{ secrets.SSH_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          source: infra/docker-compose-production.yml
-          target: "home/${{ secrets.USER }}/foodgram/docker-compose-production.yml"
-      - name: Copy nginx.conf via ssh
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USER }}
-          key: ${{ secrets.SSH_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          source: infra/nginx.conf
-          target: "home/${{ secrets.USER }}/foodgram/"
       - name: remote ssh commands to deploy
         uses: appleboy/ssh-action@master
         with:
