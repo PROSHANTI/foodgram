@@ -89,6 +89,7 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          rm: true
           script: |
             sudo mkdir -p foodgram/docs
       - name: copy docs via ssh to server
@@ -98,8 +99,8 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          source: "docs/*"
-          target: "foodgram/docs/"
+          source: "docs/"
+          target: "foodgram/"
       - name: copy files via ssh to server
         uses: appleboy/scp-action@master
         with:
