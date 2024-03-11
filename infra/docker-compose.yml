@@ -32,7 +32,7 @@ services:
 
   nginx:
     container_name: foodgram_gateway
-    build: ./gateway/
+    image: proshanti/foodgram_gateway:latest
     ports:
       - "8000:80"
     volumes:
