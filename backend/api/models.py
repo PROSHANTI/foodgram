@@ -131,22 +131,48 @@ class IngredientAmount(models.Model):
         ]
 
 
-class Favorite(UserRecipeRelation):
+class Favorite(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь',
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='favorites',
+        verbose_name='Рецепт',
+    )
 
-    class Meta(UserRecipeRelation.Meta):
+    class Meta:
+        ordering = ['-id']
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранные'
         constraints = [
             models.UniqueConstraint(fields=['user', 'recipe'],
-                                    name='unique_favorite_recipe_for_user')
+                                    name='unique favorite recipe for user')
         ]
 
 
-class Cart(UserRecipeRelation):
-    class Meta(UserRecipeRelation.Meta):
+class Cart(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='cart',
+        verbose_name='Пользователь',
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='cart',
+        verbose_name='Рецепт',
+    )
+
+    class Meta:
+        ordering = ['-id']
         verbose_name = 'Корзина'
-        verbose_name_plural = 'Корзины'
+        verbose_name_plural = 'В корзине'
         constraints = [
             models.UniqueConstraint(fields=['user', 'recipe'],
-                                    name='unique_cart_recipe_for_user')
+                                    name='unique cart user')
         ]
