@@ -81,12 +81,13 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
       - name: remote ssh commands to deploy
-        uses: garygrossgarten/github-action-ssh@release
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
-          privateKey: ${{ secrets.SSH_KEY }}
-          command: |
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          script: |
             sudo mkdir foodgram && cd foodgram
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram-backend
