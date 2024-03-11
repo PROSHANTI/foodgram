@@ -74,21 +74,10 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs:
-      - build_and_push_backend_to_docker_hub
       - build_and_push_frontend_to_docker_hub
+      - build_and_push_backend_to_docker_hub
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-      - name: Copy docker-compose.yml via ssh
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USER }}
-          key: ${{ secrets.SSH_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          target: "foodgram"
-
       - name: executing remote ssh commands to deploy
         uses: appleboy/ssh-action@master
         with:
@@ -96,9 +85,8 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo mkdir foodgram && cd foodgram
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram-backend
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram-backend
             sudo docker-compose stop
             sudo docker-compose rm backend
             rm .env
