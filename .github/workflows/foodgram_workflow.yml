@@ -93,8 +93,8 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          source: "docs/redoc.html"
-          target: "foodgram/docs/"
+          source: docs/*
+          target: "home/${{ secrets.USER }}/foodgram/docs/"
 
   deploy:
     runs-on: ubuntu-latest
@@ -112,8 +112,8 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          source: "infra/docker-compose-production.yml"
-          target: "foodgram/docker-compose-production.yml"
+          source: infra/docker-compose-production.yml
+          target: "home/${{ secrets.USER }}/foodgram/docker-compose-production.yml"
       - name: Copy nginx.conf via ssh
         uses: appleboy/scp-action@master
         with:
@@ -121,8 +121,8 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          source: "infra/nginx.conf"
-          target: "foodgram/"
+          source: infra/nginx.conf
+          target: "home/${{ secrets.USER }}/foodgram/"
       - name: remote ssh commands to deploy
         uses: appleboy/ssh-action@master
         with:
@@ -131,7 +131,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
-            sudo mkdir foodgram && cd foodgram
+            cd foodgram
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_backend
             sudo docker compose stop
