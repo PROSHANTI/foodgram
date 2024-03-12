@@ -1,7 +1,44 @@
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AbstractUser
+from django.core.validators import RegexValidator
 from django.db import models
 
-User = get_user_model()
+import foodgram.constants as const
+
+
+class User(AbstractUser):
+    email = models.EmailField(
+        max_length=const.MAX_LENGTH_EMAIL,
+        unique=True,
+        verbose_name="Адрес электронной почты",
+    )
+    username = models.CharField(
+        max_length=const.MAX_LENGTH_USERNAME,
+        unique=True,
+        verbose_name="Уникальный юзернейм",
+        validators=[RegexValidator(
+            r'^[\w.@+-]+\Z', message='Введите правильный юзернейм.'
+        )],
+    )
+    first_name = models.CharField(
+        max_length=const.MAX_LENGTH_FIRST_NAME,
+        verbose_name="Имя",
+    )
+    last_name = models.CharField(
+        max_length=const.MAX_LENGTH_LAST_NAME,
+        verbose_name="Фамилия",
+    )
+    password = models.CharField(
+        max_length=const.MAX_LENGTH_PASSWORD,
+        verbose_name="Пароль",
+    )
+
+    class Meta:
+        verbose_name = "Пользователь"
+        verbose_name_plural = "Пользователи"
+        ordering = ("username",)
+
+    def __str__(self) -> str:
+        return f"{self.username}: {self.email}"
 
 
 class Follow(models.Model):

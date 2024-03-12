@@ -132,3 +132,5 @@ DJOSER = {
         'user_list': ('rest_framework.permissions.AllowAny',)
     }
 }
+
+AUTH_USER_MODEL = 'users.User'
