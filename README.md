@@ -40,6 +40,7 @@ ssh user@ip
 ```bash
 sudo apt install docker.io 
 ```
+- Подготовьте в папке ``infra/`` файл ``.env``, пример в файле .env.example
 - Запустите сборку и развертывание образов
 ```bash
 cd foodgram/infra
