@@ -110,23 +110,29 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
             cd foodgram/infra
+            sudo docker compose -f docker-compose-production.yml down
+            sudo docker system prune --all --force --volumes
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_backend
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_gateway
-            sudo docker compose -f docker-compose-production.yml down
             sudo rm .env
+            
             touch .env
+            echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
+            echo DEBUG=False >> .env
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
             echo DB_NAME=${{ secrets.DB_NAME }} >> .env
             echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
             echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
             echo DB_HOST=${{ secrets.DB_HOST }} >> .env
             echo DB_PORT=${{ secrets.DB_PORT }} >> .env
-            echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
+            echo ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }} >> .env
+            echo MEDIA_URL=${{ secrets.MEDIA_URL }} >> .env
+            
             sudo docker compose -f docker-compose-production.yml up -d --build
-            sudo docker compose -f docker-compose-production.yml exec foodgram_backend python manage.py makemigrations --noinput
-            sudo docker compose -f docker-compose-production.yml exec foodgram_backend python manage.py migrate --noinput
-            sudo docker compose -f docker-compose-production.yml exec foodgram_backend python manage.py collectstatic --noinput
+            sudo docker compose -f docker-compose-production.yml exec backend python manage.py makemigrations --noinput
+            sudo docker compose -f docker-compose-production.yml exec backend python manage.py migrate --noinput
+            sudo docker compose -f docker-compose-production.yml exec backend python manage.py collectstatic --noinput
 
   telegram_message:
     name: Send telegram message
@@ -134,7 +140,7 @@ jobs:
     needs: deploy
     steps:
       - uses: actions/checkout@master
-      - name: send custom message with message
+      - name: send message to telegram
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_TO }}
