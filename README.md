@@ -11,6 +11,15 @@
 ![DjangoREST](https://img.shields.io/badge/DJANGO-REST-ff1709?style=for-the-badge&logo=django&logoColor=white&color=ff1709&labelColor=gray)
 ![JWT](https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=JSON%20web%20tokens)
 
+### Реализация CI/CD
+
+- Приложение возможно запустить как локально, так и на сервере.
+- Для этого вам помогут docker compose файлы
+```text
+infra/docker-compose-production.yml - Запуск на сервере
+infra/docker-compose-local.yml - Запуск на локальной машине
+```
+
 ### Запуск проекта на удаленном сервере.
 
 - Скачайте проект
@@ -18,31 +27,31 @@
 git clone https://github.com/PROSHANTI/foodgram.git
 ```
 
-- Создайте файл .env и заполните его своими данными. Перечень данных указан в корневой директории проекта в файле .env.example.
+- Скопируйте содержимое папки  ``infra/`` на удаленный сервер
+```bash
+cd foodgram
+scp -r infra/* user@ip_host:/home/user/foodgram/infra
+```
+- Зайдите на удаленный сервер
+```bash
+ssh user@ip 
+```
 - Установите Docker
 ```bash
-sudo apt install docker.io
+sudo apt install docker.io 
 ```
-- Установите docker-compose на сервер:
+- Запустите сборку и развертывание образов
 ```bash
-sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose 
+cd foodgram/infra
+sudo docker compose -f docker-compose-production.yml up -d --build 
 ```
-- На сервере соберите docker-compose:
+- Создайте миграции, примините их, соберите статику и импортируйте инградиенты, а так же создайте суперпользователя
 ```bash
-sudo docker-compose up -d --build 
-```
-- Соберите статические файлы:
-```bash
-sudo docker-compose exec backend python manage.py collectstatic --noinput 
-```
-- Примените миграции:
-```bash
-sudo docker-compose exec backend python manage.py migrate --noinput 
-```
-- Создайте суперпользователя Django:
-```bash
-sudo docker-compose exec backend python manage.py createsuperuser 
+sudo docker compose -f docker-compose-production.yml exec backend python manage.py makemigrations --noinput
+sudo docker compose -f docker-compose-production.yml exec backend python manage.py migrate --noinput
+sudo docker compose -f docker-compose-production.yml exec backend python manage.py collectstatic --noinput
+sudo docker compose -f docker-compose-production.yml exec backend python manage.py load_ingredients 
+sudo docker compose -f docker-compose-production.yml exec backend python manage.py createsuperuser
 ```
 
 ### Сервер в интернете.
