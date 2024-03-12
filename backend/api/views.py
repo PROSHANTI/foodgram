@@ -1,3 +1,4 @@
+from django.db.models import Exists, OuterRef
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from reportlab.pdfbase import pdfmetrics
@@ -5,7 +6,8 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
@@ -13,19 +15,19 @@ from api.filters import AuthorAndTagFilter, IngredientSearchFilter
 from api.models import (Cart, Favorite, Ingredient, IngredientAmount, Recipe,
                         Tag)
 from api.pagination import LimitPageNumberPagination
-from api.permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
+from api.permissions import IsOwnerOrReadOnly
 from api.serializers import (CropRecipeSerializer, IngredientSerializer,
                              RecipeSerializer, TagSerializer)
 
 
 class TagsViewSet(ReadOnlyModelViewSet):
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
 
 
 class IngredientsViewSet(ReadOnlyModelViewSet):
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     filter_backends = (IngredientSearchFilter,)
@@ -38,6 +40,31 @@ class RecipeViewSet(viewsets.ModelViewSet):
     pagination_class = LimitPageNumberPagination
     filter_class = AuthorAndTagFilter
     permission_classes = (IsOwnerOrReadOnly,)
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Recipe.objects.all().prefetch_related(
+            'ingredients', 'tags', 'author'
+        )
+        if user.is_authenticated:
+            is_favorite_annotation = Exists(
+                Favorite.objects.filter(
+                    user=user,
+                    recipe=OuterRef('pk')
+                )
+            )
+            is_in_shopping_cart_annotation = Exists(
+                Cart.objects.filter(
+                    user=user,
+                    recipe=OuterRef('pk')
+                )
+            )
+            queryset = queryset.annotate(
+                is_favorited=is_favorite_annotation,
+                is_in_shopping_cart=is_in_shopping_cart_annotation
+            )
+
+            return queryset
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
