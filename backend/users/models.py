@@ -9,11 +9,13 @@ class User(AbstractUser):
     email = models.EmailField(
         max_length=const.MAX_LENGTH_EMAIL,
         unique=True,
+        null = False,
         verbose_name="Адрес электронной почты",
     )
     username = models.CharField(
         max_length=const.MAX_LENGTH_USERNAME,
         unique=True,
+        null = False,
         verbose_name="Уникальный юзернейм",
         validators=[RegexValidator(
             r'^[\w.@+-]+\Z', message='Введите правильный юзернейм.'
@@ -21,10 +23,12 @@ class User(AbstractUser):
     )
     first_name = models.CharField(
         max_length=const.MAX_LENGTH_FIRST_NAME,
+        null = False,
         verbose_name="Имя",
     )
     last_name = models.CharField(
         max_length=const.MAX_LENGTH_LAST_NAME,
+        null = False,
         verbose_name="Фамилия",
     )
     password = models.CharField(
@@ -35,7 +39,6 @@ class User(AbstractUser):
     class Meta:
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"
-        ordering = ("username",)
 
     def __str__(self) -> str:
         return f"{self.username}: {self.email}"

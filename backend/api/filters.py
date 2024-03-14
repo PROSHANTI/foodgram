@@ -14,6 +14,8 @@ class IngredientSearchFilter(SearchFilter):
 class AuthorAndTagFilter(FilterSet):
     tags = filters.AllValuesMultipleFilter(field_name='tags__slug')
     author = filters.ModelChoiceFilter(queryset=User.objects.all())
+    is_favorited = filters.BooleanFilter()
+    is_in_shopping_cart = filters.BooleanFilter()
 
     def filter_is_favorited(self, queryset, name, value):
         if value and not self.request.user.is_anonymous:

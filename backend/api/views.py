@@ -43,9 +43,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        queryset = Recipe.objects.all().select_related(
-            'ingredients', 'tags', 'author'
-        )
+        queryset = Recipe.objects.all().select_related('author')
         if user.is_authenticated:
             is_favorite_annotation = Exists(
                 Favorite.objects.filter(
