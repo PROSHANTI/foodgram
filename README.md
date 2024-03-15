@@ -58,9 +58,6 @@ sudo docker compose -f docker-compose-production.yml exec backend python manage.
 ### Сервер в интернете.
 ```text
 Сервер развернут по адресу: http://foodgram.serveblog.net
-Данные для ревьюера:
-Login: reviewer
-passwod: P@ssw0rd
 ```
 
 ### Автор проекта
